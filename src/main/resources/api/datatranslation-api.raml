@@ -1,0 +1,70 @@
+#%RAML 1.0
+title: Data Translation System API
+version: v3
+baseUri: 
+types:
+  translationRequest:  !include libraries/dataTypes/translationRequestType.raml
+  translationResponse: !include libraries/dataTypes/translationResponseType.raml
+ 
+  
+securitySchemes:
+  basicAuth:
+    description: This API supports BASIC Authentication
+    type: Basic Authentication
+    describedBy:
+      headers:
+        Authorization:
+          description: Used to send the Base64-encoded "username:password" credentials
+          type: string
+      responses:
+        401:
+          description: |
+            Unauthorised. Either the provided username and password
+            combination is invalid, or the user is not allowed to
+            access the content provided by the requested URL.
+               
+        
+/datasource/provider/csvfile:
+      get:
+        securedBy: [basicAuth]
+        description: return data translation json from csvfile
+        responses: 
+          200:
+            body:
+              application/json:
+
+/datasource/provider/derby:
+      get:
+        securedBy: [basicAuth]
+        description: return data translation json from derby table
+        responses: 
+          200:
+            body:
+              application/json:
+
+/datasource/cache:
+      get:
+        securedBy: [basicAuth]
+        description: Refreshes the cache with updated values
+        responses: 
+          200:
+            description: Success
+
+/translate: 
+       post:
+        securedBy: [basicAuth]
+        description: Returns the translated payload given a collection of field names to translate and the partition name
+        body:
+            application/json:
+              type: translationRequest
+              #example: !include examples/translateRequest.json
+        responses:
+          200:
+            description: Success
+            body:
+                application/json:
+                  type: translationResponse 
+                  #example: !include examples/response.json
+          500:
+            description: Error translating the payload
+             

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:os="http://www.mulesoft.org/schema/mule/os" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd">
+
+	<sub-flow name="datatranslation-load-keypair-to-cache-Sub_Flow" doc:id="98479891-20f6-461d-bcab-206c02bc5d9b" >
+			<logger level="INFO" doc:name="Logger - load keypair and reversed keypair to the cache" doc:id="1db8919f-131f-4304-b4cd-64e52c64e8e5" message="load keypair and reversed keypair to the cache"/>
+			<os:store doc:name="Store in DT ObjectStore" doc:id="99b8e4f0-443b-4b68-88fa-53ba1fba8980" objectStore="DT_Object_store" key="#[payload.key]">
+				<os:value ><![CDATA[#[payload.value]]]></os:value>
+			</os:store>
+			<os:store doc:name="Reverse Store in DT ObjectStore" doc:id="2dc2a70e-a9f9-4c13-85d8-e9aa8e96655a" key="#[payload.reverseKey]" objectStore="DT_Object_store">
+				<os:value ><![CDATA[#[payload.reverseValue]]]></os:value>
+			</os:store>	</sub-flow>
+	<flow name="datatranslation-cache-implementationFlow" doc:id="6bf2ba70-e046-4907-a73b-108512541159" >
+		<logger level="INFO" doc:name="Logger - Refreshing Cache starts " doc:id="3bb57723-f169-480c-9f34-1b33d27923a2" message="Refreshing Cache starts - from Various Source Systems"/>
+		<os:clear doc:name="Clear DT ObjectStore" doc:id="7694f7b2-c02b-4342-898b-ae346903b901" />
+		<ee:transform doc:name="Transform Message - DataSources ToArray" doc:id="0abebed0-1d3d-4cd9-8009-ccb75019a813" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+if (p('datasource.endpoint') == "") null else p('datasource.endpoint') splitBy(",")]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<foreach doc:name="For Each" doc:id="35de3e3b-7778-4f27-b2d4-44f0f0139e59" collection="#[payload]">
+			<http:request method="GET" doc:name="Request - load mapping data to cache" doc:id="f3471ebb-9322-4d2f-b48b-f7cefe8ab24a" config-ref="HTTP_Request_configuration_DT" path="#[payload]"/>
+			<logger level="INFO" doc:name="Logger added data to cache" doc:id="32a94f66-8fed-41e1-b5d6-67c4480525f3" message="Successfully added mapping data to the cache from data source: #[payload]  " />
+		</foreach>
+		<ee:transform doc:name="Transform Message" doc:id="26b50314-8a66-4b3f-8cba-853f5d800227" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+message: "mapping data from multiple sources has been loaded into cache"]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

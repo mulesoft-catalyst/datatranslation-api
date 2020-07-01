@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:os="http://www.mulesoft.org/schema/mule/os" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd">
+
+
+	<sub-flow name="datatranslation-derby-datamapping-implementationFlow" doc:id="78096854-a638-4436-967a-9b796cc14f8e" >
+		<logger level="INFO" doc:name="Logger - load DT mapping data from derby file starts" doc:id="f7e777f3-96af-4a20-8d10-fdad34d663e9" message="load DT mapping data from derby file starts" />
+		<db:select doc:name="Query Mapping table" doc:id="d5d5638b-f24c-4481-82ff-7d6d61fac859" config-ref="Derby_Database_Config">
+			<db:sql >#[&quot;SELECT * FROM $(p('derby.table'))&quot;]</db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message - convert to JavaMap" doc:id="603b7edb-6fbe-44e6-ba47-f05b887e301c" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+payload map ((row , indexOfRow) -> 
+  {
+  	key: row.SOURCESYSTEMID
+  	 ++ "-" ++ row.TARGETSYSTEMID
+  	 ++ "-" ++ row.TRANSLATEFIELDKEY 
+  	 ++ "-" ++ (if (row.TRANSLATEFIELDSOURCEVALUE !="N/A") row.TRANSLATEFIELDSOURCEVALUE else ""),
+  	value: row.TRANSLATEFIELDTARGETVALUE,
+  	reverseKey: row.TARGETSYSTEMID
+  	 ++ "-" ++ row.SOURCESYSTEMID
+  	 ++ "-" ++ row.TRANSLATEFIELDKEY 
+  	 ++ "-" ++ (if (row.TRANSLATEFIELDTARGETVALUE !="N/A") row.TRANSLATEFIELDTARGETVALUE else ""),
+  	reverseValue: row.TRANSLATEFIELDSOURCEVALUE
+  })]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+			</ee:variables>
+		</ee:transform>
+		<foreach doc:name="For Each" doc:id="c3e09835-60e3-4e4f-b186-25870578609a" collection="#[payload]">
+			<flow-ref doc:name="datatranslation-load-keypair-to-cache-Sub_Flow" doc:id="86667359-b9ad-4e6f-95c7-e22aedb2cc9d" name="datatranslation-load-keypair-to-cache-Sub_Flow"/>
+		</foreach>
+		<logger level="INFO" doc:name="Logger - successfully loaded derbyDB DT data to ObjectStore" doc:id="c1f78ac6-f63e-42d2-8081-88c450865910" message="successfully loaded derbyDB DT data to ObjectStore"/>
+	</sub-flow>
+</mule>

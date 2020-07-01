@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:os="http://www.mulesoft.org/schema/mule/os" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd">
+	<flow name="datatranslation-translationImplementationSub_Flow" doc:id="95e6a6b5-0534-46b1-8358-fa2645e53990" >
+		<logger level="INFO" doc:name="Logger - translate request" doc:id="636bfd78-7663-4a88-9902-6d5c21eb1272" message=" Translate request : #[payload]"/>
+		<ee:transform doc:name="Transform Message - setPayload as Key" doc:id="abcabb88-93d3-44e6-bf69-f09b5da113b1">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/java
+---
+payload.sourceSystemID ++ "-" ++ payload.targetSystemID ++ "-" ++ payload.translateFieldKey ++ "-" ++ (if (payload.translateFieldSourceValue != "" and payload.translateFieldSourceValue != null) payload.translateFieldSourceValue else "")
+]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="defaultValue" ><![CDATA[%dw 2.0
+output application/java
+---
+payload.defaultValue]]></ee:set-variable>
+				<ee:set-variable variableName="returnSourceIfNotFound" ><![CDATA[%dw 2.0
+output application/java
+---
+payload.returnSourceIfNotFound]]></ee:set-variable>
+				<ee:set-variable variableName="translateFieldSourceValue" ><![CDATA[%dw 2.0
+output application/java
+---
+payload.translateFieldSourceValue]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<set-variable value="#[payload]" doc:name="Set Variable - key" doc:id="81998709-6f1a-431c-b256-606dfcd7c3b5" variableName="key"/>
+		<!-- <os:retrieve-all doc:name="Retrieve all" doc:id="17db2f11-6564-4396-ab44-905c9e0be2f8" />-->
+		<os:retrieve doc:name="Retrieve value based on key" doc:id="3c915e63-984b-41f2-ac76-9fc9dfeadc39" key="#[vars.key]" objectStore="DT_Object_store" />
+		<set-variable value="#[payload]" doc:name="Set Variable - value" doc:id="0525c278-ea65-454d-a2fd-e5a31c8c6fe1" variableName="value"/>
+		<ee:transform doc:name="Transform Message - keyvalue result" doc:id="5e7cff58-eeac-4acb-8f7f-57d22bfe651c">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	(vars.key): vars.value
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger - Translate response " doc:id="f2bfc5b7-5b7d-4e08-bcc9-fa932c5c524c" message=" Translate response : #[payload]"/>
+         <error-handler ref="Translate_Error_Handler"/>
+	</flow>
+</mule>

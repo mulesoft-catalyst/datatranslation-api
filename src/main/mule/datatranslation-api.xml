@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd ">
+    <flow name="datatranslation-api-main">
+        <http:listener config-ref="datatranslation-api-httpListenerConfig" path="/api/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:router config-ref="datatranslation-api-config" />
+        <error-handler ref="API_Error_Handler"/>
+    </flow>
+    <flow name="datatranslation-api-console">
+        <http:listener config-ref="datatranslation-api-httpListenerConfig" path="/console/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:console config-ref="datatranslation-api-config" />
+        <error-handler>
+            <on-error-propagate type="APIKIT:NOT_FOUND">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Resource not found"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+    <flow name="get:\datasource\cache:datatranslation-api-config">
+		<flow-ref doc:name="Flow Reference" doc:id="624f95da-1b41-4eee-910f-ac1e8293bb2c" name="datatranslation-cache-implementationFlow"/>
+    </flow>
+    <flow name="get:\datasource\provider\csvfile:datatranslation-api-config">
+		<flow-ref doc:name="datatranslation-csv-pricesites-datamapping-implementationFlow" doc:id="ab486e2e-95d7-475a-a5b2-202936253256" name="datatranslation-csv-pricesites-datamapping-implementationFlow"/>
+		<flow-ref doc:name="datatranslation-csv-workingretailsites-datamapping-implementationFlow" doc:id="a5fa2a6a-604d-4c76-81a5-96f07a816807" name="datatranslation-csv-workingretailsites-datamapping-implementationFlow"/>
+    </flow>
+    <flow name="get:\datasource\provider\derby:datatranslation-api-config">
+		<flow-ref doc:name='datatranslation-derby-datamapping-implementationFlow' doc:id="9e740d43-e09c-4e6f-afe7-69b940036ba8" name="datatranslation-derby-datamapping-implementationFlow"/>
+    </flow>
+    <flow name="post:\translate:application\json:datatranslation-api-config">
+		<flow-ref doc:name="datatranslation-translationImplementationSub_Flow" doc:id="5647b16a-e7b6-4540-bc17-ec546ec6a63f" name="datatranslation-translationImplementationSub_Flow"/>
+    </flow>
+</mule>

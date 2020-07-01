@@ -1,0 +1,29 @@
+#%RAML 1.0 DataType
+  type: object
+  properties: 
+    sourceSystemID:
+      type: string
+      description: This field captures the source systemId
+    targetSystemID:
+      type: string
+      description: This field captures the target System ID
+    translateFieldKey:
+      type: string
+      description: This field captures the translate Field Key
+    translateFieldSourceValue?:
+      type: string
+      description: This field captures the translate Field Source Value
+      required: false
+    dataSourceProviderID?:
+      type: string
+      description: This field captures the source for data , at the moment there is only a single source of data
+      required: false
+    defaultValue:
+      type: string
+      description: return default value if target value not found
+      required: false
+    returnSourceIfNotFound:
+      type: string
+      description: return Source If no key exists
+      required: false
+

@@ -1,0 +1,7 @@
+  {
+    "sourceSystemID": "SalesForce",
+    "targetSystemID": "SAP",
+    "translateFieldKey": "AccountNumber",
+    "translateFieldSourceValue": "467",
+    "returnSourceIfNotFound": "true"
+  }

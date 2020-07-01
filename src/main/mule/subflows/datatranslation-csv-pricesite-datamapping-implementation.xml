@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:os="http://www.mulesoft.org/schema/mule/os" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd">
+
+	<flow name="datatranslation-csv-pricesites-datamapping-implementationFlow" doc:id="a6d477a2-cf8f-4d52-9f49-9a16eef998a3" >
+		<logger level="INFO" doc:name="Logger - load pricesite DT mapping data from csv file starts" doc:id="87185b18-7849-4e5d-9997-9dde0f9f762a" message="load pricesite DT mapping data from csv file starts"/>
+		<file:read doc:name="Read mapping from CSV file" doc:id="6489e4da-fd48-4f88-8302-9328eab580b5" path="dtmappingfiles/PriceSite.csv" config-ref="DTMapping_File_Config"/>
+		<ee:transform doc:name="Transform Message - convert mapping data to Javamap" doc:id="40b1ec64-f918-446a-b48d-37acafff3057" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+payload map ((row , indexOfRow) -> 
+  {
+  	key: "SiteId"
+  	 ++ "-" ++ "SiteCode"
+  	 ++ "-" ++ "PriceSite" 
+  	 ++ "-" ++ row.SiteId default "",
+  	value: row.SiteCode,
+  	reverseKey: "SiteCode"
+  	 ++ "-" ++ "SiteId"
+  	 ++ "-" ++ "PriceSite" 
+  	 ++ "-" ++  row.SiteCode default "",
+  	reverseValue: row.SiteId
+  })]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<foreach doc:name="For Each" doc:id="656a2b17-8de1-41c8-bb44-97e6d86fa8f2" collection="#[payload]">
+			<flow-ref doc:name="datatranslation-load-keypair-to-cache-Sub_Flow" doc:id="8f1c8096-1627-428a-970c-99f4a26c83fe" name="datatranslation-load-keypair-to-cache-Sub_Flow"/>
+		</foreach>
+		<logger level="INFO" doc:name="Logger- successfully loaded pricesite csv DT data to ObjectStore" doc:id="a3619626-d02d-414b-9e42-7bda8ec5025f" message="successfully loaded pricesite csv DT data to ObjectStore"/>
+	</flow>
+</mule>

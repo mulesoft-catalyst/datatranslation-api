@@ -1,0 +1,66 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="csvdtmapping" format="csv">
+      <types:shape format="weave" example="dtmappingfiles/dtmapping.csv"><![CDATA[%dw 2.0
+type csvdtmapping = Array<{|
+  SOURCESYSTEMID: String, 
+  TARGETSYSTEMID: String, 
+  TRANSLATEFIELDKEY: String, 
+  TRANSLATEFIELDSOURCEVALUE: String, 
+  TRANSLATEFIELDTARGETVALUE: String
+|}> {"MetadataFormat": "csv"}
+
+]]></types:shape>
+      <types:properties>
+        <types:property name="headerLineNumber" value="0"/>
+        <types:property name="header" value="true"/>
+        <types:property name="isQuotedString" value="false"/>
+        <types:property name="separator" value=","/>
+      </types:properties>
+    </types:type>
+    <types:type name="csvpricesite" format="csv">
+      <types:shape format="weave" example="dtmappingfiles/PriceSite.csv"><![CDATA[%dw 2.0
+type csvpricesite = Array<{|
+  "﻿SiteId": String, 
+  Description: String, 
+  SiteCode: String, 
+  SupressChangeEvents: String
+|}> {"MetadataFormat": "csv"}
+
+]]></types:shape>
+      <types:properties>
+        <types:property name="quote" value="&quot;"/>
+        <types:property name="headerLineNumber" value="0"/>
+        <types:property name="header" value="true"/>
+        <types:property name="isQuotedString" value="true"/>
+        <types:property name="separator" value=","/>
+      </types:properties>
+    </types:type>
+    <types:type name="csvworkingretailsites" format="csv">
+      <types:shape format="weave" example="dtmappingfiles/WorkingRetailsSites.csv"><![CDATA[%dw 2.0
+type csvworkingretailsites = Array<{|
+  "﻿LocationID": String, 
+  LocationName: String
+|}> {"MetadataFormat": "csv"}
+
+]]></types:shape>
+      <types:properties>
+        <types:property name="headerLineNumber" value="0"/>
+        <types:property name="header" value="true"/>
+        <types:property name="isQuotedString" value="false"/>
+        <types:property name="separator" value=","/>
+      </types:properties>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#40b1ec64-f918-446a-b48d-37acafff3057">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="csvworkingretailsites"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#603b7edb-6fbe-44e6-ba47-f05b887e301c"/>
+</types:mule>

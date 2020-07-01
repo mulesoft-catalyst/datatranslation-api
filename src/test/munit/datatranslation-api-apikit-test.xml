@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:spring="http://www.mulesoft.org/schema/mule/spring"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+	xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd 
+	http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd 
+	http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd 
+	http://www.mulesoft.org/schema/mule/munit-tools http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd 
+	http://www.mulesoft.org/schema/mule/spring http://www.mulesoft.org/schema/mule/spring/current/mule-spring.xsd">
+	<munit:config name="datatranslation-api-apikit-test.xml" />
+	<spring:config name="springConfig" files="classpath:beans/spring-beans.xml" /> 
+
+	<!-- <spring:beans> <spring:import resource="classpath:globals/globals.xml"/> 
+		</spring:beans> -->
+	<http:request-config name="HTTP_Request_Configuration"
+		basePath="/api">
+		<http:request-connection host="localhost"
+			port="8081" />
+	</http:request-config>
+<!-- 	<import doc:name="Import" doc:id="08fa899a-cbeb-4786-aaf6-59fc9748aa4c" file="classpath:globals/globals.xml" /> -->
+	<munit:test
+		name="get:\datasource\cache:datatranslation-api-config-200--FlowTest"
+		description="Verifying functionality of [get:\datasource\cache:datatranslation-api-config-200-]" ignore="true">
+		<munit:enable-flow-sources>
+			<munit:enable-flow-source value="datatranslation-api-main" />
+			<munit:enable-flow-source
+				value="get:\datasource\cache:datatranslation-api-config" />
+		</munit:enable-flow-sources>
+		<munit:behavior>
+			<munit-tools:mock-when doc:name="Mock when"
+				doc:id="9f0bdce2-7b33-477a-9b93-b5c45aa308b4" processor="http:request">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute
+						attributeName="name" whereValue="Request - load mapping data to cache" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution>
+            <http:request config-ref="HTTP_Request_Configuration" method="GET" path="/datasource/cache" />
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that expression="#[attributes.statusCode]" is="#[MunitTools::equalTo(200)]" message="The HTTP Status code is not correct!" doc:name="Assert That Status Code is 200" />
+			<munit-tools:assert-that doc:name="Assert that" doc:id="31d3ada7-abf2-4dde-8f84-85beaa3dcec1" expression="#[output application/json ---write(payload, 'application/json') as String]" is="#[MunitTools::equalTo(MunitTools::getResourceAsString('scaffolder/response/get_200_datasource_cache_application_json.json'))]"/>
+        </munit:validation>
+    </munit:test>
+    <munit:test name="get:\datasource\provider\csvfile:datatranslation-api-config-200-application\json-FlowTest" description="Verifying functionality of [get:\datasource\provider\csvfile:datatranslation-api-config-200-application\json]" ignore="true">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="datatranslation-api-main" />
+            <munit:enable-flow-source value="get:\datasource\provider\csvfile:datatranslation-api-config" />
+        </munit:enable-flow-sources>
+        <munit:execution>
+            <http:request config-ref="HTTP_Request_Configuration" method="GET" path="/datasource/provider/csvfile">
+                <http:headers>#[{"Accept":"application/json"}]</http:headers>
+            </http:request>
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that expression="#[attributes.statusCode]" is="#[MunitTools::equalTo(200)]" message="The HTTP Status code is not correct!" doc:name="Assert That Status Code is 200" />
+            <munit-tools:assert-that expression="#[output application/json ---write(payload, 'application/json') as String]" is="#[MunitTools::equalTo(MunitTools::getResourceAsString('scaffolder/response/get_200_datasource_provider_csvfile_application_json.json'))]" message="The response payload is not correct!" doc:name="Assert That - Payload is Expected" />
+        </munit:validation>
+    </munit:test>
+    <munit:test name="get:\datasource\provider\derby:datatranslation-api-config-200-application\json-FlowTest" description="Verifying functionality of [get:\datasource\provider\derby:datatranslation-api-config-200-application\json]" ignore="true">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="datatranslation-api-main" />
+            <munit:enable-flow-source value="get:\datasource\provider\derby:datatranslation-api-config" />
+        </munit:enable-flow-sources>
+        <munit:execution>
+            <http:request config-ref="HTTP_Request_Configuration" method="GET" path="/datasource/provider/derby">
+                <http:headers>#[{"Accept":"application/json"}]</http:headers>
+            </http:request>
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that expression="#[attributes.statusCode]" is="#[MunitTools::equalTo(200)]" message="The HTTP Status code is not correct!" doc:name="Assert That Status Code is 200" />
+            <munit-tools:assert-that expression="#[output application/java ---write(payload, 'application/json') as String]" is="#[MunitTools::equalTo(MunitTools::getResourceAsString('scaffolder/response/get_200_datasource_provider_derby_application_json.json'))]" message="The response payload is not correct!" doc:name="Assert That - Payload is Expected" />
+        </munit:validation>
+    </munit:test>
+    <munit:test name="post:\translate:application\json:datatranslation-api-config-200-application\json-FlowTest" description="Verifying functionality of [post:\translate:application\json:datatranslation-api-config-200-application\json]" ignore="true">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="datatranslation-api-main" />
+            <munit:enable-flow-source value="post:\translate:application\json:datatranslation-api-config" />
+        </munit:enable-flow-sources>
+        <munit:behavior>
+			<munit-tools:mock-when doc:name="Mock when" doc:id="37cc7d66-83e8-480f-b2a9-c45a5f5d420b" processor="os:retrieve">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute attributeName="doc:name" whereValue="Retrieve value based on key" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value='#["876"]' mediaType="application/java" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+        </munit:behavior>
+        <munit:execution>
+            <set-payload value="#[MunitTools::getResourceAsString('scaffolder/request/post_translate_application_json.json')]" />
+			<http:request config-ref="HTTP_Request_Configuration" method="POST" path="/translate">
+                <http:headers>#[{"Accept":"application/json","Content-Type":"application/json"}]</http:headers>
+            </http:request>
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that expression="#[attributes.statusCode]" is="#[MunitTools::equalTo(200)]" message="The HTTP Status code is not correct!" doc:name="Assert That Status Code is 200" />
+            <munit-tools:assert-that expression="#[output application/json ---write(payload, 'application/json') as String]" is="#[MunitTools::equalTo(MunitTools::getResourceAsString('scaffolder/response/post_200_translate_application_json.json'))]" message="The response payload is not correct!" doc:name="Assert That - Payload is Expected" />
+        </munit:validation>
+    </munit:test>
+    <munit:test name="post:\translate:application\json:datatranslation-api-config-NoKey--FlowTest" description="Verifying functionality of [post:\translate:application\json:datatranslation-api-config-500-]">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="datatranslation-api-main" />
+            <munit:enable-flow-source value="post:\translate:application\json:datatranslation-api-config" />
+        </munit:enable-flow-sources>
+        <munit:execution>
+            <set-payload value="#[MunitTools::getResourceAsString('scaffolder/request/post_translate_application_json_nokey.json')]" />
+			<http:request config-ref="HTTP_Request_Configuration" method="POST" path="/translate">
+                <http:headers><![CDATA[#[output application/java
+---
+{
+	"Content-Type" : "application/json"
+}]]]></http:headers>
+                <http:response-validator>
+                    <http:success-status-code-validator values="200" />
+                </http:response-validator>
+            </http:request>
+        </munit:execution>
+		<munit:validation>
+			<munit-tools:assert-that expression="#[attributes.statusCode]" is="#[MunitTools::equalTo(200)]" message="The HTTP Status code is not correct!" doc:name="Assert That Status Code is 200" />
+            <munit-tools:assert-that expression="#[output application/json ---write(payload, 'application/json') as String]" is="#[MunitTools::equalTo(MunitTools::getResourceAsString('scaffolder/response/post_200_translate_application_json_nokey.json'))]" message="The response payload is not correct!" doc:name="Assert That - Payload is Expected" />
+
+        </munit:validation>
+    </munit:test>
+</mule>

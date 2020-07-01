@@ -1,0 +1,21 @@
+﻿SiteId,Description,SiteCode,SupressChangeEvents
+0,Unknown,0,1
+38,Z Albany,100373,NULL
+39,Z Constellation Dr,109348,NULL
+40,Z Glen Park,100363,NULL
+41,Z Greville Rd,182110,NULL
+42,Z Lakeside,100350,NULL
+43,Z Mairangi Bay,100314,NULL
+44,Z Manly,100246,NULL
+45,Z Milford,100340,NULL
+46,Z Northcross,100307,NULL
+47,Z Sunnybrae,100354,NULL
+48,Z Harbour Hwy,110220,NULL
+49,Z Whangaparaoa,103757,NULL
+50,Z Kaikohe,100062,NULL
+51,Z Kaitaia,100021,NULL
+52,Z Kamo,100101,NULL
+53,Z Kensington,100102,NULL
+54,Z Paihia,100074,NULL
+55,Z Water St,100110,1
+56,Z Avondale,105144,NULL

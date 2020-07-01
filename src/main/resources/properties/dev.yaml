@@ -1,0 +1,15 @@
+derby:
+  table: "DTMAPPING"
+  database: "muleEmbeddedDB"
+  subsubProtocol: "memory"
+  
+datasource:
+  endpoint: "/datasource/provider/csvfile"
+  
+httprequest:
+  host: "127.0.0.1"
+  port: "8081"
+  
+httplistener:
+  host: "127.0.0.1"
+  port: "8081"
